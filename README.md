@@ -40,7 +40,7 @@ $ sudo apt install libpq-dev
 $ cargo install diesel_cli
 ```
 
-##### Setup the environment
+#### Setup the environment
 
 ```sh
 $ cp .env.example .env
