@@ -1,5 +1,5 @@
 use actix_web::{
-    App, get, HttpServer, HttpResponse, middleware::Logger, Responder, web, http::StatusCode
+    App, get, HttpServer, HttpResponse, middleware::{Logger, NormalizePath}, Responder, web, http::StatusCode
 };
 use askama::Template;
 use templates::{
@@ -57,6 +57,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
+            .wrap(NormalizePath::new(actix_web::middleware::TrailingSlash::Trim))
             .service(index_handler)
             .service(
                 web::scope("/assets/css")
