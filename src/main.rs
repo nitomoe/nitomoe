@@ -1,20 +1,47 @@
 use actix_web::{
-    App, get, HttpServer, HttpResponse, middleware::Logger, Responder, web::{self, service}, http
+    App, get, HttpServer, HttpResponse, middleware::Logger, Responder, web, http::StatusCode
 };
 use askama::Template;
-use templates::not_found_template::NotFoundTemplate;
-use crate::templates::index_template::IndexTemplate;
+use templates::{
+    board_template::BoardTemplate,
+    index_template::IndexTemplate,
+    not_found_template::NotFoundTemplate,
+};
 
 mod handlers;
 mod templates;
 
-async fn not_found_handler() -> impl Responder {
-    HttpResponse::NotFound().content_type("text/html").body(NotFoundTemplate.render().unwrap())
+fn render_template<T: Template>(status_code: StatusCode, template: T) -> HttpResponse {
+    match template.render() {
+        Ok(rendered) => {
+            HttpResponse::build(status_code).content_type("text/html").body(rendered)
+        }
+        Err(e) => {
+            log::error!("Failed to render template: {:?}", e);
+            HttpResponse::InternalServerError().body("Internal Server Error")
+        }
+    }
+}
+
+async fn not_found_handler() -> HttpResponse {
+    render_template(StatusCode::NOT_FOUND, NotFoundTemplate)
 }
 
 #[get("/")]
 async fn index_handler() -> impl Responder {
-    HttpResponse::Ok().content_type("text/html").body(IndexTemplate.render().unwrap())
+    render_template(StatusCode::OK, IndexTemplate)
+}
+
+#[get("/{board}")]
+async fn board_handler(path: web::Path<String>) -> HttpResponse {
+    let board_name = path.to_owned();
+
+    if board_name == "neet" {
+        render_template(StatusCode::OK, BoardTemplate)
+    }
+    else {
+        not_found_handler().await
+    }
 }
 
 #[actix_web::main]
@@ -41,6 +68,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/assets/img")
                 .service(handlers::assets_handler::sad_img)
             )
+            .service(board_handler)
             .default_service(web::get().to(not_found_handler))
     })
     .bind("0.0.0.0:4000")?
