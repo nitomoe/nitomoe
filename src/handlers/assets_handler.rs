@@ -2,7 +2,9 @@ use actix_web::{get, Responder, HttpResponse};
 
 static APP_COMPILED_CSS: &'static str = include_str!(concat!(env!("OUT_DIR"), "/app.css"));
 static AUTH_COMPILED_CSS: &'static str = include_str!(concat!(env!("OUT_DIR"), "/auth.css"));
+static NORMALIZE_CSS: &'static str = include_str!("../../assets/css/normalize.css");
 
+#[inline]
 async fn render(data: &'static str) -> impl Responder {
     HttpResponse::Ok().content_type("text/css").body(data)
 }
@@ -15,4 +17,9 @@ pub async fn app_css() -> impl Responder {
 #[get("auth.css")]
 pub async fn auth_css() -> impl Responder {
     render(AUTH_COMPILED_CSS).await
+}
+
+#[get("normalize.css")]
+pub async fn normalize_css() -> impl Responder {
+    render(NORMALIZE_CSS).await
 }

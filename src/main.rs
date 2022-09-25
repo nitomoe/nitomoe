@@ -1,5 +1,5 @@
 use actix_web::{
-    App, get, HttpServer, HttpResponse, middleware::Logger, Responder, web, http
+    App, get, HttpServer, HttpResponse, middleware::Logger, Responder, web::{self, service}, http
 };
 use askama::Template;
 use crate::templates::index_template::IndexTemplate;
@@ -32,6 +32,7 @@ async fn main() -> std::io::Result<()> {
             .service(index_handler)
             .service(
                 web::scope("/assets/css")
+                .service(handlers::assets_handler::normalize_css)
                 .service(handlers::assets_handler::app_css)
                 .service(handlers::assets_handler::auth_css)
             )
