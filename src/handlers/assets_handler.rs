@@ -1,8 +1,18 @@
 use actix_web::{get, Responder, HttpResponse};
 
-static COMPILED_CSS: &'static str = include_str!(concat!(env!("OUT_DIR"), "/app.css"));
+static APP_COMPILED_CSS: &'static str = include_str!(concat!(env!("OUT_DIR"), "/app.css"));
+static AUTH_COMPILED_CSS: &'static str = include_str!(concat!(env!("OUT_DIR"), "/auth.css"));
+
+async fn render(data: &'static str) -> impl Responder {
+    HttpResponse::Ok().content_type("text/css").body(data)
+}
 
 #[get("app.css")]
-pub async fn css() -> impl Responder {
-    HttpResponse::Ok().content_type("text/css").body(COMPILED_CSS)
+pub async fn app_css() -> impl Responder {
+    render(APP_COMPILED_CSS).await
+}
+
+#[get("auth.css")]
+pub async fn auth_css() -> impl Responder {
+    render(AUTH_COMPILED_CSS).await
 }

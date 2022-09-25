@@ -32,7 +32,8 @@ async fn main() -> std::io::Result<()> {
             .service(index_handler)
             .service(
                 web::scope("/assets/css")
-                .service(handlers::assets_handler::css)
+                .service(handlers::assets_handler::app_css)
+                .service(handlers::assets_handler::auth_css)
             )
             .default_service(web::get().to(not_found_handler))
     })
