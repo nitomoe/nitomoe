@@ -5,6 +5,7 @@ static AUTH_COMPILED_CSS: &'static str = include_str!(concat!(env!("OUT_DIR"), "
 static NORMALIZE_CSS: &'static str = include_str!("../../assets/css/normalize.css");
 
 static SIDEBAR_JS: &'static str = include_str!("../../assets/js/sidebar.js");
+static TOASTER_JS: &'static str = include_str!("../../assets/js/toaster.js");
 
 #[inline]
 async fn render(mimetype: &str, data: &'static str) -> impl Responder {
@@ -36,4 +37,9 @@ pub async fn sad_img() -> impl Responder {
 #[get("sidebar.js")]
 pub async fn sidebar_js() -> impl Responder {
     render("text/javascript", SIDEBAR_JS).await
+}
+
+#[get("toaster.js")]
+pub async fn toaster_js() -> impl Responder {
+    render("text/javascript", TOASTER_JS).await
 }

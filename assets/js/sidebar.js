@@ -1,3 +1,5 @@
+import Toaster from './toaster.js'
+
 export default class Sidebar {
     constructor() {
         this._submitButton = document.querySelector('.sidebar .button.submit');
@@ -5,6 +7,8 @@ export default class Sidebar {
         this._fileContainer = document.querySelector('.sidebar .file-container');
         this._fileInput = document.querySelector('.sidebar input[name="file"]');
 
-        console.log(this);
+        this._submitButton.addEventListener('click', () => {
+            new Toaster({type: 'error'}).show("click click click");
+        })
     }
 }

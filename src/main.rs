@@ -88,6 +88,7 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/assets/js")
                 .service(handlers::assets_handler::sidebar_js)
+                .service(handlers::assets_handler::toaster_js)
             )
             .service(
                 web::scope("/assets/img")
