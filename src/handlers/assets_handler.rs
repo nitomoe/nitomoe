@@ -23,3 +23,10 @@ pub async fn auth_css() -> impl Responder {
 pub async fn normalize_css() -> impl Responder {
     render(NORMALIZE_CSS).await
 }
+
+#[get("sad.gif")]
+pub async fn sad_img() -> impl Responder {
+    // FIXME: Don't create a vector
+    
+    HttpResponse::Ok().content_type("image/gif").body(include_bytes!("../../assets/img/sad.gif").to_vec())
+}
