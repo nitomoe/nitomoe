@@ -11,6 +11,20 @@ diesel::table! {
 }
 
 diesel::table! {
+    files (id) {
+        id -> Int8,
+        filename -> Text,
+        size -> Int4,
+        width -> Int4,
+        height -> Int4,
+        extension -> Text,
+        post_id -> Nullable<Int8>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     posters (id) {
         id -> Int8,
         ip -> Inet,
@@ -43,12 +57,14 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(files -> posts (post_id));
 diesel::joinable!(posts -> posters (poster_id));
 diesel::joinable!(posts -> threads (thread_id));
 diesel::joinable!(threads -> boards (board_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     boards,
+    files,
     posters,
     posts,
     threads,

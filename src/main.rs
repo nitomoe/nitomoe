@@ -87,12 +87,19 @@ async fn main() -> std::io::Result<()> {
             )
             .service(
                 web::scope("/assets/js")
+                .service(handlers::assets_handler::api_js)
                 .service(handlers::assets_handler::sidebar_js)
                 .service(handlers::assets_handler::toaster_js)
+                .service(handlers::assets_handler::service_thread_js)
+                .service(handlers::assets_handler::service_post_js)
             )
             .service(
                 web::scope("/assets/img")
                 .service(handlers::assets_handler::sad_img)
+            )
+            .service(
+                web::scope("/api/v1")
+                .service(handlers::api_handler::new_thread)
             )
             .service(board_handler)
             .default_service(web::get().to(not_found_handler))
