@@ -1,6 +1,6 @@
 # Nitomoe
 
-Modern imageboard software
+Modern imageboard software, while still feeling familiar.
 
 ### Deploying
 
@@ -29,7 +29,7 @@ $ brew install mysql
 
 ##### Ubuntu / Windows (WSL)
 ```sh
-$ sudo apt install libsql3-dev
+$ sudo apt install libsqlite3-dev
 $ sudo apt install libmysqlclient-dev
 $ sudo apt install libpq-dev
 ```
