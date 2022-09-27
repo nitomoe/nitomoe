@@ -8,6 +8,8 @@ license = "MIT"
 
 [dependencies]
 actix-web = "4.0.1"
+actix-multipart = "0.4.0"
+futures-util = "0.3.24"
 diesel = { version = "2.0", features = ["postgres", "r2d2", "chrono"] }
 chrono = "0.4.22"
 lazy_static = "1.4.0"

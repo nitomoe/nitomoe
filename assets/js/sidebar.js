@@ -26,9 +26,9 @@ export default class Sidebar {
             let post = new PostFormData();
 
             post.board_name = "neet";
-            post.key = this._keyInput;
-            post.body = this._bodyTextarea;
-            post.file = this._fileInput;
+            post.key = this._keyInput.value;
+            post.body = this._bodyTextarea.value;
+            post.file = this._fileInput.files[0];
 
             await this.createThread(post);
         }
