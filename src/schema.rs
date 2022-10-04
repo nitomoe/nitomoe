@@ -24,7 +24,7 @@ diesel::table! {
         width -> Int4,
         height -> Int4,
         extension -> Text,
-        post_id -> Nullable<Int8>,
+        post_id -> Int8,
         uid -> Int8,
         created_at -> Timestamp,
         updated_at -> Timestamp,

@@ -1,4 +1,4 @@
-use std::{net::IpAddr, str::FromStr};
+use std::{net::IpAddr, str::FromStr, path::Path};
 
 use actix_multipart_extract::{MultipartForm, Multipart, File};
 use actix_web::{HttpResponse, post, web, HttpRequest};
@@ -6,7 +6,7 @@ use diesel::PgConnection;
 use ipnetwork::IpNetwork;
 use serde::{Deserialize, Serialize};
 
-use crate::{db::PgPool, error::Error, service::{board_service, thread_service, post_service, poster_service}, models::{thread::{Thread, InsertThread}, post::{InsertPost, Post}}};
+use crate::{db::PgPool, error::Error, service::{board_service, thread_service, post_service, poster_service, file_service}, models::{thread::{Thread, InsertThread}, post::{InsertPost, Post}, file::InsertFile}, env};
 
 async fn create_thread(
     conn: &mut PgConnection,
@@ -19,6 +19,8 @@ async fn create_thread(
     if create_thread_input.file.is_none() {
         return Err(Error::NewThreadMissingFile)
     }
+
+    let file = create_thread_input.file.as_ref().unwrap();
 
     let subject = &create_thread_input.subject;
     let body = &create_thread_input.body;
@@ -38,6 +40,38 @@ async fn create_thread(
             body: body.to_owned()
         };
         let post = post_service::insert_post(conn, insert_post)?;
+
+        let ext = match file.content_type.as_str() {
+            "image/png" => "png",
+            "image/jpeg" => "jpg",
+            "image/gif" => "gif",
+            _ => todo!()
+        };
+
+        let insert_file = InsertFile {
+            filename: file.name.to_owned(),
+            size: file.bytes.len() as i32,
+            width: 0,
+            height: 0,
+            extension: ext.to_owned(),
+            post_id: post.id
+        };
+        let inserted_file = file_service::insert_file(conn, insert_file)?;
+
+        {
+            let path_string = format!("{}/media/{}.{}", env::STORAGE_PATH.as_str(), inserted_file.uid, inserted_file.extension);
+
+            let file_path = Path::new(&path_string);
+
+            let _ = std::fs::write(file_path, &file.bytes);
+        }
+        {
+            let path_string = format!("{}/media/{}s.{}", env::STORAGE_PATH.as_str(), inserted_file.uid, inserted_file.extension);
+
+            let file_path = Path::new(&path_string);
+
+            let _ = std::fs::write(file_path, &file.bytes);
+        }
 
         Ok((thread, post))
     })?;
