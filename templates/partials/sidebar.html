@@ -8,7 +8,8 @@
 		</div>
 		<div class="form-group">
 			<form name="" method="post" enctype="multipart/form-data" action="#">
-                <input type="hidden" name="mode" value="new_thread">
+                <input type="hidden" name="mode" value="new-thread">
+				<input type="hidden" name="board-name" value="{{ board.name }}">
 				<input type="text" name="key" placeholder="Key">
 				<input type="text" name="subject" placeholder="Subject">
 				<textarea name="body" placeholder="Comment"></textarea>

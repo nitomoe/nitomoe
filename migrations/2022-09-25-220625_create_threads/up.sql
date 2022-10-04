@@ -1,8 +1,12 @@
+CREATE TYPE ThreadStatus AS ENUM (
+    'Open', 'Locked'
+);
+
 CREATE TABLE IF NOT EXISTS threads (
     "id" BIGSERIAL NOT NULL PRIMARY KEY,
     "subject" TEXT,
     "board_id" INT NOT NULL REFERENCES boards,
-    "status" SMALLINT NOT NULL DEFAULT 0,
+    "status" ThreadStatus NOT NULL DEFAULT 'Open',
     "sticky" BOOLEAN NOT NULL DEFAULT FALSE,
     "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

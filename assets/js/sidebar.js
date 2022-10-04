@@ -4,6 +4,7 @@ import { ThreadFormData, ThreadService } from './service/thread.js';
 
 export default class Sidebar {
     constructor() {
+        this._boardName = document.querySelector('.sidebar input[name="board-name"]');
         this._submitButton = document.querySelector('.sidebar .button.submit');
         this._fileBrowseButton = document.querySelector('.sidebar .file-browse');
         this._fileContainer = document.querySelector('.sidebar .file-container');
@@ -22,16 +23,14 @@ export default class Sidebar {
     async onSubmitButtonClicked() {
         const mode = document.querySelector('input[name="mode"]');
         
-        if (this._fileInput.files.length > 0) {
-            let post = new PostFormData();
+        let post = new PostFormData();
 
-            post.board_name = "neet";
-            post.key = this._keyInput.value;
-            post.body = this._bodyTextarea.value;
-            post.file = this._fileInput.files[0];
+        post.board_name = this._boardName.value;
+        post.key = this._keyInput.value;
+        post.body = this._bodyTextarea.value;
+        post.file = this._fileInput.files[0];
 
-            await this.createThread(post);
-        }
+        await this.createThread(post);
     }
 
     /**
@@ -49,7 +48,7 @@ export default class Sidebar {
      */
     async createThread(post) {
         const thread = new ThreadFormData();
-        thread.subject = this._subjectInput;
+        thread.subject = this._subjectInput.value;
         thread.post = post;
 
         const onUploadProgress = (event) => {
@@ -62,10 +61,19 @@ export default class Sidebar {
         };
 
         try {
-            ThreadService.create(thread, options);
+            this._submitButton.innerHTML = '...';
+            
+            const response = await ThreadService.create(thread, options);
+
+            if (!response.success) {
+                new Toaster({type: 'error'}).show(response.message);
+            }
         }
         catch (e) {
-            console.error(e);
+            console.error(response);
+        }
+        finally {
+            this._submitButton.innerHTML = 'SUBMIT';
         }
     }
 

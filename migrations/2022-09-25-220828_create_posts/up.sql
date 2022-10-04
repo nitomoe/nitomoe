@@ -3,9 +3,9 @@ CREATE TABLE IF NOT EXISTS posts (
     "num" BIGINT NOT NULL,
     "thread_id" BIGINT NOT NULL REFERENCES threads,
     "poster_id" BIGINT NOT NULL REFERENCES posters,
+    "body" TEXT,
     "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "body" TEXT
+    "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX posts_num_idx ON posts ("num");

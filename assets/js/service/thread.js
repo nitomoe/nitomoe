@@ -16,6 +16,7 @@ export class ThreadService {
      */
     static async create(thread, options = {}) {
         const fd = new FormData();
+        fd.append('boardName', thread.post.boardName);
         fd.append('subject', thread.subject);
         fd.append('key', thread.post.key);
         fd.append('body', thread.post.body);

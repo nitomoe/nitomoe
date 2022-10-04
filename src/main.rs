@@ -78,6 +78,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(NormalizePath::new(actix_web::middleware::TrailingSlash::Trim))
             .app_data(db_pool.clone())
+            .app_data(actix_web::web::PayloadConfig::new(50_000_000)) // 50mb max payload size
             .service(index_handler)
             .service(
                 web::scope("/assets/css")

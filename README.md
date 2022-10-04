@@ -51,6 +51,7 @@ Edit the `.env` file and supply the expected values
 | Key                        | Example Value                                                             |
 | -------------------------- | ------------------------------------------------------------------------- |
 | DATABASE_URL               | postgres://postgres:postgres@localhost/nitomoe_dev                        |
+| STORAGE_PATH               | Directory where uploaded files live                                       |
 
 ##### Bring up the development database
 
@@ -61,3 +62,11 @@ $ docker compose -f dev/docker-compose.yml up -d
 $ diesel setup
 $ diesel migration run
 ```
+
+##### Launch the development server
+
+```sh
+$ cargo run
+```
+
+Visit [http://localhost:4000](http://localhost:4000) to see your local copy.

@@ -1,5 +1,11 @@
 // @generated automatically by Diesel CLI.
 
+pub mod sql_types {
+    #[derive(diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "threadstatus"))]
+    pub struct Threadstatus;
+}
+
 diesel::table! {
     boards (id) {
         id -> Int4,
@@ -19,6 +25,7 @@ diesel::table! {
         height -> Int4,
         extension -> Text,
         post_id -> Nullable<Int8>,
+        uid -> Int8,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -39,18 +46,21 @@ diesel::table! {
         num -> Int8,
         thread_id -> Int8,
         poster_id -> Int8,
+        body -> Nullable<Text>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-        body -> Nullable<Text>,
     }
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::Threadstatus;
+
     threads (id) {
         id -> Int8,
         subject -> Nullable<Text>,
         board_id -> Int4,
-        status -> Int2,
+        status -> Threadstatus,
         sticky -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
