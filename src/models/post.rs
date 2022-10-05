@@ -1,9 +1,11 @@
 use diesel::{
-    Identifiable, Insertable, Queryable
+    Associations, Identifiable, Insertable, Queryable
 };
+use crate::models::thread::Thread;
 use crate::schema::posts;
 
-#[derive(Identifiable, Queryable)]
+#[derive(Associations, Debug, Identifiable, Queryable, PartialEq)]
+#[diesel(belongs_to(Thread))]
 pub struct Post {
     pub id: i64,
     pub num: i64,

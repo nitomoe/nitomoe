@@ -9,6 +9,8 @@ use templates::{
     index_template::IndexTemplate,
     not_found_template::NotFoundTemplate,
 };
+use diesel::GroupedBy;
+use crate::models::post::Post;
 
 mod db;
 mod env;
@@ -53,37 +55,40 @@ async fn board_handler(
 
     let board = service::board_service::get_by_name(&mut conn, &board_name);
     
-    {
-        use diesel::GroupedBy;
-        use crate::models::board::Board;
-        use crate::models::thread::Thread;
-        use crate::schema::boards;
+    // {
+        // use diesel::GroupedBy;
+        // use crate::models::board::Board;
+        // use crate::models::thread::Thread;
+        // use crate::schema::boards;
+        // use crate::service::board_service;
 
-        let boards: Vec<Board> = boards::table.load::<Board>(&mut conn).expect("error loading boards");
-        let threads: Vec<Thread> = Thread::belonging_to(&boards).load::<Thread>(&mut conn).expect("error loading threads");
-        let grouped_threads: Vec<Vec<Thread>> = threads.grouped_by(&boards);
-        let result: Vec<(Board, Vec<Thread>)> = boards.into_iter().zip(grouped_threads).collect();
+        // let boards: Vec<Board> = boards::table.load::<Board>(&mut conn).expect("error loading boards");
+        // let threads: Vec<Thread> = Thread::belonging_to(&boards).load::<Thread>(&mut conn).expect("error loading threads");
+        // let grouped_threads: Vec<Vec<Thread>> = threads.grouped_by(&boards);
+        // let result: Vec<(Board, Vec<Thread>)> = boards.into_iter().zip(grouped_threads).collect();
 
-        log::warn!("{:#?}", result);
-    }
+        // log::warn!("{:#?}", result);
+    // }
 
     match board {
         Ok(board) => {
             let threads = Thread::belonging_to(&board).load::<Thread>(&mut conn).map_err(actix_web::error::ErrorInternalServerError)?;
+            // FIXME: Change this to only get the first post
+            let posts = Post::belonging_to(&threads).load::<Post>(&mut conn).expect("load posts error");
+            let grouped_posts = posts.grouped_by(&threads);
+            let result: Vec<(Thread, Vec<Post>)> = threads.into_iter().zip(grouped_posts).collect();
 
             let template = BoardTemplate {
-                board: board
+                board: (board, result)
             };
 
-            // Ok(
-            //     render_template(
-            //         StatusCode::OK,
-            //         &template
-            //     )
-            //     .await
-            // )
-
-            Ok(HttpResponse::Ok().body(template.render().unwrap()))
+            Ok(
+                render_template(
+                    StatusCode::OK,
+                    &template
+                )
+                .await
+            )
         }
         Err(e) => {
             log::error!("Board not found: {:?}", e);
