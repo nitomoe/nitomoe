@@ -2,13 +2,14 @@ use diesel::deserialize::{FromSql, self};
 use diesel::pg::{Pg, PgValue};
 use diesel::serialize::{ToSql, Output, self, IsNull};
 use diesel::{
-    Identifiable, Queryable, Insertable, AsExpression, FromSqlRow
+    Identifiable, Queryable, Insertable, AsExpression, FromSqlRow, Associations
 };
 use std::io::Write;
+use crate::models::board::Board;
 use crate::schema::threads;
 use crate::schema::sql_types::Threadstatus;
 
-#[derive(Debug, AsExpression, FromSqlRow)]
+#[derive(Debug, AsExpression, FromSqlRow, PartialEq)]
 #[diesel(sql_type = Threadstatus)]
 pub enum ThreadStatus {
     Open,
@@ -35,7 +36,8 @@ impl FromSql<Threadstatus, Pg> for ThreadStatus {
     }
 }
 
-#[derive(Identifiable, Queryable)]
+#[derive(Debug, Identifiable, Queryable, Associations, PartialEq)]
+#[diesel(belongs_to(Board))]
 pub struct Thread {
     pub id: i64,
     pub subject: Option<String>,

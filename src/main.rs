@@ -3,6 +3,7 @@ use actix_web::{
 };
 use askama::Template;
 use db::{establish_db_connection, PgPool};
+use models::file;
 use templates::{
     board_template::BoardTemplate,
     index_template::IndexTemplate,
@@ -18,7 +19,7 @@ mod service;
 mod handlers;
 mod templates;
 
-async fn render_template<T: Template>(status_code: StatusCode, template: T) -> HttpResponse {
+async fn render_template<T: Template>(status_code: StatusCode, template: &T) -> HttpResponse {
     match template.render() {
         Ok(rendered) => {
             HttpResponse::build(status_code).content_type("text/html").body(rendered)
@@ -31,12 +32,12 @@ async fn render_template<T: Template>(status_code: StatusCode, template: T) -> H
 }
 
 async fn not_found_handler() -> HttpResponse {
-    render_template(StatusCode::NOT_FOUND, NotFoundTemplate).await
+    render_template(StatusCode::NOT_FOUND, &NotFoundTemplate).await
 }
 
 #[get("/")]
 async fn index_handler() -> impl Responder {
-    render_template(StatusCode::OK, IndexTemplate).await
+    render_template(StatusCode::OK, &IndexTemplate).await
 }
 
 #[get("/{board}")]
@@ -44,16 +45,48 @@ async fn board_handler(
     pool: web::Data<PgPool>,
     path: web::Path<String>
 ) -> Result<HttpResponse, actix_web::Error> {
+    use crate::models::thread::Thread;
+    use diesel::{BelongingToDsl, RunQueryDsl};
+
     let mut conn = pool.get().map_err(actix_web::error::ErrorInternalServerError)?;
     let board_name = path.into_inner();
 
     let board = service::board_service::get_by_name(&mut conn, &board_name);
+    
+    {
+        use diesel::GroupedBy;
+        use crate::models::board::Board;
+        use crate::models::thread::Thread;
+        use crate::schema::boards;
+
+        let boards: Vec<Board> = boards::table.load::<Board>(&mut conn).expect("error loading boards");
+        let threads: Vec<Thread> = Thread::belonging_to(&boards).load::<Thread>(&mut conn).expect("error loading threads");
+        let grouped_threads: Vec<Vec<Thread>> = threads.grouped_by(&boards);
+        let result: Vec<(Board, Vec<Thread>)> = boards.into_iter().zip(grouped_threads).collect();
+
+        log::warn!("{:#?}", result);
+    }
 
     match board {
         Ok(board) => {
-            Ok(render_template(StatusCode::OK, BoardTemplate { board }).await)
+            let threads = Thread::belonging_to(&board).load::<Thread>(&mut conn).map_err(actix_web::error::ErrorInternalServerError)?;
+
+            let template = BoardTemplate {
+                board: board
+            };
+
+            // Ok(
+            //     render_template(
+            //         StatusCode::OK,
+            //         &template
+            //     )
+            //     .await
+            // )
+
+            Ok(HttpResponse::Ok().body(template.render().unwrap()))
         }
-        Err(_e) => {
+        Err(e) => {
+            log::error!("Board not found: {:?}", e);
             Ok(not_found_handler().await)
         }
     }

@@ -3,7 +3,7 @@ use diesel::{
 };
 use crate::schema::boards;
 
-#[derive(Identifiable, Queryable)]
+#[derive(Debug, Identifiable, Queryable)]
 pub struct Board {
     pub id: i32,
     pub title: String,

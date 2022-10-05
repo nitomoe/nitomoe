@@ -2,9 +2,26 @@
 
 {% block content %}
 <div class="with-sidebar">
+    {#{% let (board, threads) = board %}#}
     <div class="primary-content">
-        <div class="thread">
-            /{{ board.name }}/ &ndash; {{ board.title }}
+        <div class="catalog">
+            {#{% for thread in threads %}
+                <div class="post">
+                    <div class="post__image">
+                        <a href="#">
+                            <img src="#"/>
+                        </a>
+                    </div>
+                    <div class="tail">
+                        <div class="tail__post-count">Replies: 0</div>
+                        {% if thread.subject.is_some() %}
+                            <div class="tail__thread-subject">{{ thread.subject.as_ref().unwrap() }}</div>
+                        {% endif %}
+                        <div class="tail__post-preview">content</div>
+                    </div>
+                </div>
+            {% endfor %}
+            #}
         </div>
     </div>
     {% include "partials/sidebar.html" %}
